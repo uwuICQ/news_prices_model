@@ -1,0 +1,167 @@
+# Окно цен и новостей. Обучение — первые два года, проверка — последний.
+window:
+  start: "2023-10-12"
+  end: "2026-10-12"
+train_end: "2025-10-12"
+
+channels:
+  - rian_ru
+  - mash
+
+# Стемы: совпадение с левой границы слова. Окончания можно не дописывать.
+macro_keywords:
+  - центробанк
+  - "цб рф"
+  - "банк россии"
+  - санкц
+  - "курс рубл"
+  - инфляц
+  - "ключевая ставка"
+  - "ключевую ставку"
+  - "ключевой ставки"
+  - "ключевой ставке"
+  - "ключевой ставкой"
+
+sectors:
+  agriculture:
+    name: Сельское хозяйство
+    keywords:
+      - урожай
+      - пшениц
+      - зернов
+      - сахарн
+      - свинин
+      - комбикорм
+      - удобрен
+      - агропром
+      - сельхоз
+      - посевн
+      - свекл
+      - аквакультур
+  fuel:
+    name: Топливный
+    keywords:
+      - нефт
+      - бензин
+      - дизел
+      - нефтепродукт
+      - баррел
+      - газодобыч
+      - спг
+  logistics:
+    name: Логистика
+    keywords:
+      - контейнер
+      - фрахт
+      - судоход
+      - грузоперевоз
+      - логистик
+      - пароход
+      - стивидор
+      - порт
+  banks:
+    name: Банки
+    keywords:
+      - банк
+      - ипоте
+      - вкладов
+      - "по вкладам"
+      - кредитован
+      - "ключевая ставка"
+      - "ключевую ставку"
+      - "ключевой ставки"
+      - "ключевой ставке"
+      - "ключевой ставкой"
+  bigtech:
+    name: Бигтех
+    keywords:
+      - кибербезопас
+      - "ит-компани"
+      - интернет-компани
+
+# seasonal: false — короткий ряд после редомициляции, в сезонный профиль не входит.
+tickers:
+  - ticker: GCHE
+    name: Черкизово
+    sector: agriculture
+    seasonal: true
+    aliases: [черкизово]
+  - ticker: AQUA
+    name: Инарктика
+    sector: agriculture
+    seasonal: true
+    aliases: [инарктик, "русская аквакультура"]
+  - ticker: PHOR
+    name: ФосАгро
+    sector: agriculture
+    seasonal: true
+    aliases: [фосагро, phosagro]
+  - ticker: RAGR
+    name: Русагро
+    sector: agriculture
+    seasonal: false
+    history_note: "торги с 17.02.2025, в сезонность не входит"
+    aliases: [русагро]
+  - ticker: GAZP
+    name: Газпром
+    sector: fuel
+    seasonal: true
+    aliases: [газпром]
+  - ticker: LKOH
+    name: Лукойл
+    sector: fuel
+    seasonal: true
+    aliases: [лукойл]
+  - ticker: ROSN
+    name: Роснефть
+    sector: fuel
+    seasonal: true
+    aliases: [роснефть]
+  - ticker: FESH
+    name: FESCO
+    sector: logistics
+    seasonal: true
+    aliases: [fesco, феско, двмп, "дальневосточное морское"]
+  - ticker: NMTP
+    name: НМТП
+    sector: logistics
+    seasonal: true
+    aliases: [нмтп, "новороссийский морской", "новороссийского морского"]
+  - ticker: FLOT
+    name: Совкомфлот
+    sector: logistics
+    seasonal: true
+    aliases: [совкомфлот]
+  - ticker: SBER
+    name: Сбербанк
+    sector: banks
+    seasonal: true
+    aliases: [сбербанк, сбер]
+  - ticker: VTBR
+    name: ВТБ
+    sector: banks
+    seasonal: true
+    aliases: [втб]
+  - ticker: T
+    name: Т-Технологии
+    sector: banks
+    seasonal: false
+    history_note: "история тикера T с 28.11.2024, в сезонность не входит"
+    aliases: [тинькофф, "т-банк", "т-технолог"]
+  - ticker: VKCO
+    name: VK
+    sector: bigtech
+    seasonal: true
+    history_note: "торги VKCO с 20.10.2023"
+    aliases: [вконтакте, vk]
+  - ticker: POSI
+    name: Positive Technologies
+    sector: bigtech
+    seasonal: true
+    aliases: ["positive technologies", "группа позитив", "позитивные технологии"]
+  - ticker: YDEX
+    name: Яндекс
+    sector: bigtech
+    seasonal: false
+    history_note: "торги YDEX с 24.07.2024, в сезонность не входит"
+    aliases: [яндекс]
