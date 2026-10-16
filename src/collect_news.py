@@ -346,10 +346,15 @@ async def run() -> None:
     api_id = os.getenv("TELEGRAM_API_ID", "").strip()
     api_hash = os.getenv("TELEGRAM_API_HASH", "").strip()
     if not api_id or not api_hash:
-        raise SystemExit(
-            "Нет TELEGRAM_API_ID и TELEGRAM_API_HASH. Скопируйте .env.example в .env "
-            "и вставьте ключи с https://my.telegram.org"
+        print(
+            "Нет ключей Telegram: читаю публичные ленты ria.ru и mash.ru за то же окно. "
+            "Каналы @rian_ru и @mash подключаются, если в .env есть ключи с https://my.telegram.org",
+            flush=True,
         )
+        from src.collect_public import collect_public
+
+        collect_public()
+        return
     try:
         api_id_int = int(api_id)
     except ValueError as exc:

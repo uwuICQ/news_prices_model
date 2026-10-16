@@ -10,7 +10,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from src.db import DB_PATH, connect
-from src.features import next_trading_day, seasonal_profile
+from src.features import adjust_price_scale, next_trading_day, seasonal_profile
 from src.universe import Universe, load_universe
 
 MONTHS = ["", "январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"]
@@ -45,7 +45,7 @@ def _query(sql: str) -> pd.DataFrame:
 
 @st.cache_data(show_spinner=False)
 def load_prices() -> pd.DataFrame:
-    return _query("SELECT * FROM prices")
+    return adjust_price_scale(_query("SELECT * FROM prices"))
 
 
 @st.cache_data(show_spinner=False)

@@ -5,7 +5,15 @@ import pandas as pd
 
 from sklearn.metrics import mean_absolute_error
 
-from src.features import FEATURE_COLS, build_panel, latest_market_row, next_trading_day, seasonal_profile
+from src.features import (
+    FEATURE_COLS,
+    adjust_price_scale,
+    build_panel,
+    latest_market_row,
+    next_trading_day,
+    price_features,
+    seasonal_profile,
+)
 
 
 class PanelTests(unittest.TestCase):
@@ -146,6 +154,20 @@ class PanelTests(unittest.TestCase):
         for row in profile.itertuples(index=False):
             self.assertAlmostEqual(row.mean_return, float(expected.loc[row.month]))
         self.assertTrue((profile["n"] > 0).all())
+
+    def test_share_consolidation_does_not_become_a_return(self):
+        prices = pd.DataFrame(
+            {
+                "ticker": ["VTBR", "VTBR", "VTBR"],
+                "trade_date": ["2024-07-12", "2024-07-15", "2024-07-16"],
+                "close": [0.01992, 92.95, 95.32],
+                "volume": [0.0, 100.0, 80.0],
+            }
+        )
+        adjusted = adjust_price_scale(prices)
+        self.assertAlmostEqual(float(adjusted["close"].iloc[0]), 92.95)
+        returns = price_features(adjusted)
+        self.assertLess(float(returns["ret_1"].abs().max()), 0.05)
 
     def test_forecast_row_needs_twenty_one_closes(self):
         short = _price_frame("RAGR", 20)

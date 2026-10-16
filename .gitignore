@@ -1,6 +1,8 @@
 .env
-data/
-models/
+data/*
+!data/market.sqlite
+models/*
+!models/forecast.joblib
 *.session
 *.session-journal
 __pycache__/

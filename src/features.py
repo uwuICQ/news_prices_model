@@ -143,8 +143,36 @@ def _volume_z(series: pd.Series) -> pd.Series:
     return ((series - mean) / std.replace(0, np.nan)).fillna(0.0)
 
 
+def adjust_price_scale(prices: pd.DataFrame, jump: float = 1.0) -> pd.DataFrame:
+    """Склеивает ряд, если за день цена меняется больше чем вдвое.
+
+    Так в истории ВТБ выглядит консолидация 15.07.2024: 0.02 рубля становится около 93.
+    Более ранние цены переводятся в масштаб последней котировки.
+    """
+    if prices.empty:
+        return prices.copy()
+    parts: list[pd.DataFrame] = []
+    for _ticker, part in prices.groupby("ticker", sort=False):
+        part = part.sort_values("trade_date").copy()
+        close = part["close"].astype(float).to_numpy()
+        factor = np.ones(len(close))
+        for index in range(1, len(close)):
+            previous = close[index - 1]
+            if previous <= 0:
+                continue
+            if abs(close[index] / previous - 1) > jump:
+                factor[:index] *= close[index] / previous
+        if not np.allclose(factor, 1.0):
+            for column in ("open", "high", "low", "close"):
+                if column in part.columns:
+                    part[column] = part[column].astype(float) * factor
+        parts.append(part)
+    return pd.concat(parts, ignore_index=True)
+
+
 def price_features(prices: pd.DataFrame) -> pd.DataFrame:
-    frame = prices.sort_values(["ticker", "trade_date"]).copy()
+    frame = adjust_price_scale(prices)
+    frame = frame.sort_values(["ticker", "trade_date"])
     frame = frame.loc[frame["close"].astype(float) > 0].copy()
     frame["ret_1"] = frame.groupby("ticker")["close"].transform(lambda series: series.pct_change())
     frame["ret_5"] = frame.groupby("ticker")["close"].transform(lambda series: series.pct_change(5))
@@ -209,7 +237,8 @@ def load_frames(conn) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
 
 def seasonal_profile(prices: pd.DataFrame, tickers: list[str]) -> pd.DataFrame:
-    frame = prices.loc[prices["ticker"].isin(tickers)].sort_values(["ticker", "trade_date"]).copy()
+    frame = adjust_price_scale(prices.loc[prices["ticker"].isin(tickers)])
+    frame = frame.sort_values(["ticker", "trade_date"])
     if frame.empty:
         return pd.DataFrame(columns=["ticker", "month", "mean_return", "n"])
     frame["ret"] = frame.groupby("ticker")["close"].pct_change()
