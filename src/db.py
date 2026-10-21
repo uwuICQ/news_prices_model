@@ -1,5 +1,3 @@
-"""SQLite-хранилище цен, новостей и метрик."""
-
 from __future__ import annotations
 
 import sqlite3
@@ -63,15 +61,6 @@ CREATE TABLE IF NOT EXISTS feature_importance (
     importance REAL
 );
 
-CREATE TABLE IF NOT EXISTS news_sync (
-    channel TEXT PRIMARY KEY,
-    oldest_scanned_id INTEGER,
-    newest_scanned_id INTEGER,
-    history_complete INTEGER NOT NULL DEFAULT 0,
-    forward_lo INTEGER,
-    forward_hi INTEGER
-);
-
 CREATE INDEX IF NOT EXISTS idx_news_published ON news(published_at);
 CREATE INDEX IF NOT EXISTS idx_links_ticker ON news_links(ticker);
 """
@@ -83,8 +72,4 @@ def connect() -> sqlite3.Connection:
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
     conn.executescript(SCHEMA)
-    have = {row[1] for row in conn.execute("PRAGMA table_info(news_sync)")}
-    for name in ("forward_lo", "forward_hi"):
-        if name not in have:
-            conn.execute(f"ALTER TABLE news_sync ADD COLUMN {name} INTEGER")
     return conn

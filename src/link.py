@@ -1,5 +1,3 @@
-"""Привязка текста новости к бумагам по алиасам и словам сегмента."""
-
 from __future__ import annotations
 
 import re
@@ -8,7 +6,6 @@ from functools import lru_cache
 
 from src.universe import Universe
 
-# Окончания, при которых стема ещё нет: портфель, банкет, газпромнефть.
 BLOCK_SUFFIXES: dict[str, tuple[str, ...]] = {
     "порт": ("фел", "ал", "рет", "ье", "уг"),
     "банк": ("ет",),
@@ -30,7 +27,6 @@ def normalize(text: str) -> str:
 
 
 def term_found(text: str, term: str) -> bool:
-    """Стем с левой границы слова. text уже нормализован."""
     needle = normalize(term)
     if not needle:
         return False
@@ -50,7 +46,6 @@ def _compiled(needle: str) -> re.Pattern[str]:
 
 
 def classify(text: str, universe: Universe) -> tuple[list[Hit], bool]:
-    """Алиас важнее сегмента для той же бумаги. Сегмент — вес 0.5."""
     norm = normalize(text)
     hits: list[Hit] = []
     matched: set[str] = set()

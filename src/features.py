@@ -1,5 +1,3 @@
-"""Панель «бумага × день» и сезонный профиль."""
-
 from __future__ import annotations
 
 import bisect
@@ -48,7 +46,6 @@ def next_trading_day(calendar: list[str], day: str) -> str | None:
 
 
 def prepare_links(conn, universe: Universe) -> tuple[int, int]:
-    """Пересобирает привязки. Тональность уже посчитанных постов не стирает."""
     news = pd.read_sql_query("SELECT channel, msg_id, text FROM news", conn)
     if news.empty:
         raise SystemExit("В базе нет новостей. Сначала выполните: python -m src.collect_news")
@@ -144,11 +141,6 @@ def _volume_z(series: pd.Series) -> pd.Series:
 
 
 def adjust_price_scale(prices: pd.DataFrame, jump: float = 1.0) -> pd.DataFrame:
-    """Склеивает ряд, если за день цена меняется больше чем вдвое.
-
-    Так в истории ВТБ выглядит консолидация 15.07.2024: 0.02 рубля становится около 93.
-    Более ранние цены переводятся в масштаб последней котировки.
-    """
     if prices.empty:
         return prices.copy()
     parts: list[pd.DataFrame] = []
@@ -251,7 +243,6 @@ def seasonal_profile(prices: pd.DataFrame, tickers: list[str]) -> pd.DataFrame:
 
 
 def latest_market_row(prices: pd.DataFrame, ticker: str) -> dict | None:
-    """Признаки последнего закрытия, по которым можно строить прогноз следующего дня."""
     features = price_features(prices.loc[prices["ticker"] == ticker])
     ready = features.dropna(subset=["ret_1", "ret_5", "ret_20"])
     if ready.empty:
@@ -261,7 +252,6 @@ def latest_market_row(prices: pd.DataFrame, ticker: str) -> dict | None:
 
 
 def hits_to_feature_patch(hits: list[Hit], sentiment: float, is_macro: bool) -> dict[str, dict]:
-    """Для каждой бумаги — новостные признаки одного текста."""
     patches: dict[str, dict] = {}
     for hit in hits:
         patch = {column: 0.0 for column in ZERO_NEWS}

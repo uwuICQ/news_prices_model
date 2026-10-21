@@ -1,5 +1,3 @@
-"""Дневные итоги TQBR с публичного ISS Мосбиржи."""
-
 from __future__ import annotations
 
 import sys

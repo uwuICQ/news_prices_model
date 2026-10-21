@@ -1,5 +1,3 @@
-"""Список бумаг, сегментов и окна истории."""
-
 from __future__ import annotations
 
 from dataclasses import dataclass

@@ -1,5 +1,3 @@
-"""Прогноз доходности следующего дня по тексту новости."""
-
 from __future__ import annotations
 
 import joblib
@@ -52,7 +50,6 @@ def _reason(match_type: str, term: str) -> str:
 
 
 def forecast_texts(items: list[dict]) -> list[dict]:
-    """items: словари с ключом text и необязательными channel, published_at."""
     universe = load_universe()
     parsed = []
     pending_texts: list[str] = []

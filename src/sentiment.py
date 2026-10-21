@@ -1,5 +1,3 @@
-"""Тональность: P(positive) − P(negative), модель seara/rubert-tiny2-russian-sentiment."""
-
 from __future__ import annotations
 
 SENTIMENT_MODEL = "seara/rubert-tiny2-russian-sentiment"
@@ -43,7 +41,6 @@ class SentimentScorer:
 
 
 def score_pending(conn, scorer: SentimentScorer | None = None, batch_size: int = 32) -> int:
-    """Считает тональность релевантных постов, у которых её ещё нет."""
     rows = conn.execute(
         """
         SELECT channel, msg_id, text

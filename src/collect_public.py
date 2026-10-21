@@ -1,10 +1,3 @@
-"""Новости без ключей Telegram: поиск РИА и лента mash.ru.
-
-Те же каналы rian_ru и mash, то же окно и та же таблица news.
-Повторный запуск догружает только новые материалы. Если сбор оборвался,
-следующий продолжается с сохранённого смещения в data/public_progress.json.
-"""
-
 from __future__ import annotations
 
 import json
@@ -12,18 +5,18 @@ import re
 import time
 from datetime import date, datetime, timedelta
 from html import unescape
+from zoneinfo import ZoneInfo
 
 import requests
 
-from src.collect_news import MSK, window_bounds
 from src.db import ROOT, connect
 from src.universe import Universe, load_universe
 
+MSK = ZoneInfo("Europe/Moscow")
 RIA_SEARCH = "https://ria.ru/services/search/getmore/"
 MASH_POSTS = "https://mash.ru/api/posts/"
 PROGRESS_PATH = ROOT / "data" / "public_progress.json"
 PAGE_LIMIT = 100
-# Короткие слова цепляют посторонние материалы и раздувают выгрузку.
 SKIP_QUERIES = {"vk", "банк", "порт"}
 
 SESSION = requests.Session()
@@ -34,7 +27,6 @@ SESSION.headers["User-Agent"] = (
 SESSION.headers["Accept-Language"] = "ru-RU,ru;q=0.9"
 SESSION.headers["Referer"] = "https://ria.ru/"
 
-# Поиск РИА ищет словоформы, а в конфиге лежат стемы для привязки текста.
 SEARCH_FORMS = {
     "инарктик": "инарктика",
     "пшениц": "пшеница",
@@ -75,13 +67,18 @@ _TAG_RE = re.compile(r"<[^>]+>")
 _TIME_RE = re.compile(r"(\d{1,2}):(\d{2})")
 
 
+def window_bounds(start_iso: str, end_iso: str) -> tuple[datetime, datetime]:
+    start = datetime.fromisoformat(start_iso).replace(tzinfo=MSK)
+    end_exclusive = datetime.fromisoformat(end_iso).replace(tzinfo=MSK) + timedelta(days=1)
+    return start, end_exclusive
+
+
 def plain_text(raw: str) -> str:
     text = _TAG_RE.sub(" ", raw or "")
     return re.sub(r"\s+", " ", unescape(text)).strip()
 
 
 def published_from_ria(day: str, label: str) -> datetime:
-    """День берётся из адреса материала, время — из подписи РИА. Часовой пояс Москвы."""
     hour, minute = 12, 0
     found = _TIME_RE.search(label or "")
     if found:
@@ -194,7 +191,6 @@ def _in_window(moment: datetime, start: datetime, end_exclusive: datetime) -> bo
 
 
 def _halves(start: str, end: str) -> tuple[tuple[str, str], tuple[str, str]] | None:
-    """Поиск РИА отдаёт не больше 200 материалов на один интервал дат."""
     left = date.fromisoformat(start)
     right = date.fromisoformat(end)
     if right <= left:

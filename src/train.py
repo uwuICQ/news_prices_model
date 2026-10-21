@@ -1,5 +1,3 @@
-"""Обучение LightGBM: доходность следующего торгового дня."""
-
 from __future__ import annotations
 
 import sys
